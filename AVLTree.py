@@ -1,10 +1,9 @@
-# id1:
-# name1:
-# username1:
-# id2:
-# name2:
-# username2:
-
+# id1: 345682645
+# name1: Nickolai Makaronok
+# username1: mikalaim
+# id2: 213122625
+# name2: Tal Samson
+# username2: talsamson
 
 """A class represnting a node in an AVL tree"""
 
@@ -114,6 +113,76 @@ class AVLTree(object):
 
         return None, path_len
 
+    def BF(self, nodeX):
+        if nodeX is None:
+            return 0
+        return nodeX.left.height - nodeX.right.height
+
+
+    def right_rotation(self, nodeX):
+        nodeL = nodeX.left
+        nodeP = nodeX.parent
+        nodeLR = nodeL.right
+
+        nodeL.right = nodeX
+        nodeX.parent = nodeL
+
+        nodeX.left = nodeLR
+        nodeLR.parent = nodeX
+
+        nodeL.parent = nodeP
+
+        if nodeP is None:
+            self.root = nodeL  # Case: X was the root
+        elif nodeP.left is nodeX:
+            nodeP.left = nodeL  # Case: X was a left child
+        else:
+            nodeP.right = nodeL  # Case: X was a right child
+
+        nodeX.height = 1 + max(nodeX.left.height, nodeX.right.height)
+        nodeL.height = 1 + max(nodeL.left.height, nodeL.right.height)
+
+
+    def rebalance(self, nodeX):
+
+        # The first case L-L (Right Rotation) BF(nodeX) = 2,  BF(nodeX.left) >=0
+        if (self.BF(nodeX) == 2 and self.BF(nodeX.left) >= 0):
+            self.right_rotation(nodeX)
+
+        # The second case R-R (Left Rotation) BF(nodeX) = -2 BF(nodex.right) <=0
+        elif self.BF(nodeX) == -2 and self.BF(nodeX.right) <= 0:
+            nodeR = nodeX.right
+            nodeP = nodeX.parent
+            nodeRL = nodeR.left
+
+
+            nodeR.parent = nodeP
+            nodeX.parent = nodeR
+            nodeR.left = nodeX
+            nodeRL.parent = nodeX
+            nodeX.right = nodeRL;
+
+            if nodeP is None:
+                self.root = nodeR  # Case: X was the root
+            elif nodeP.left is nodeX:
+                nodeP.left = nodeR  # Case: X was a left child
+            else:
+                nodeP.right = nodeR  # Case: X was a right child
+
+            nodeX.height = 1 + max(nodeX.left.height, nodeX.right.height)
+            nodeR.height = 1 + max(nodeR.left.height, nodeR.right.height)
+
+        # The third case L-R (Left Rotation on the left child, then Right Rotation on the node) BF(nodeX) = 2, BF(nodex.left) = -1
+        elif self.BF(nodeX) == 2 and self.BF(nodeX.left) == -1:
+
+
+        # The fourth case R-L (Right Rotation on the right child, then Left Rotation on the node) BF(nodeX) = -2 BF(node.right) = 1
+        elif self.BF(nodeX) == -2 and self.BF(nodeX.right) == 1:
+
+
+
+        return None
+
     """inserts a new node into the dictionary with corresponding key and value (starting at the root)
 
     @type key: int
@@ -128,7 +197,69 @@ class AVLTree(object):
     """
 
     def insert(self, key, val):
-        return None, -1, -1
+
+        if self.root is None:
+            self.root = AVLNode(key, val)
+            self.root.height = 0
+
+            self.root.left = AVLNode(None, None)
+            self.root.right = AVLNode(None, None)
+            self.root.left.parent = self.root
+            self.root.right.parent = self.root
+
+            self.max_node_field = self.root
+
+            return self.root, 0, 0
+
+        curr = self.root
+        path_len = 0
+
+        while (curr.is_real_node()):
+            path_len += 1
+            if curr.key < key:
+                curr = curr.right
+            elif curr.key > key:
+                curr = curr.left
+
+        curr.key = key
+        curr.value = val
+        curr.height = 0
+
+        new_node_left = AVLNode(None, None)
+        new_node_right = AVLNode(None, None)
+
+        curr.left = new_node_left
+        curr.right = new_node_right
+
+        new_node_right.parent = curr
+        new_node_left.parent = curr
+
+        if self.max_node_field is None or key > self.max_node_field.key:
+            self.max_node_field = curr
+
+        # "balancing"
+
+        parent = curr.parent
+        promotes = 0
+
+        while (parent is not None):
+
+            old_height = parent.height
+            new_height = 1 + max(parent.left.height, parent.right.height)
+
+            bf = parent.left.height - parent.right.height
+
+            if abs(bf) < 2 and old_height == new_height:
+                break
+            elif abs(bf) < 2 and old_height != new_height:
+                parent.height = new_height
+                promotes += 1
+                parent = parent.parent
+            else:
+                self.rebalance(parent)
+                return curr, path_len, promotes
+
+        return curr, path_len, promotes
 
     """inserts a new node into the dictionary with corresponding key and value, starting at the max
 
