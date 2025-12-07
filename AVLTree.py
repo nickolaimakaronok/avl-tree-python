@@ -33,7 +33,9 @@ class AVLNode(object):
     """
 
     def is_real_node(self):
-        return False
+        if (self.key is None):
+            return False
+        return True
 
 
 """
@@ -48,6 +50,7 @@ class AVLTree(object):
 
     def __init__(self):
         self.root = None
+        self.max_node_field = None
 
     """searches for a node in the dictionary corresponding to the key (starting at the root)
 
@@ -59,7 +62,24 @@ class AVLTree(object):
     """
 
     def search(self, key):
-        return None, -1
+        if self.root is None:
+            return (None, 0)
+
+        curr = self.root
+
+        path_len = 0
+
+        while curr is not None and curr.is_real_node():
+            path_len += 1
+
+            if curr.key == key:
+                return curr, path_len
+            elif curr.key > key:
+                curr = curr.left
+            else:
+                curr = curr.right
+
+        return None, path_len
 
     """searches for a node in the dictionary corresponding to the key, starting at the max
 
@@ -71,7 +91,28 @@ class AVLTree(object):
     """
 
     def finger_search(self, key):
-        return None, -1
+
+        if self.root is None:
+            return (None, 0)
+
+        curr = self.max_node()
+        path_len = 0
+
+        while curr.parent is not None and curr.key > key:
+            curr = curr.parent
+            path_len += 1
+
+        while curr is not None and curr.is_real_node():
+            path_len += 1
+
+            if curr.key == key:
+                return curr, path_len
+            elif curr.key > key:
+                curr = curr.left
+            else:
+                curr = curr.right
+
+        return None, path_len
 
     """inserts a new node into the dictionary with corresponding key and value (starting at the root)
 
@@ -159,7 +200,7 @@ class AVLTree(object):
     """
 
     def max_node(self):
-        return None
+        return self.max_node_field
 
     """returns the number of items in dictionary 
 
@@ -178,4 +219,3 @@ class AVLTree(object):
 
     def get_root(self):
         return None
-
