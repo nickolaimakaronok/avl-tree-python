@@ -143,6 +143,28 @@ class AVLTree(object):
         nodeL.height = 1 + max(nodeL.left.height, nodeL.right.height)
 
 
+    def left_rotation(self, nodeX):
+        nodeR = nodeX.right
+        nodeP = nodeX.parent
+        nodeRL = nodeR.left
+
+        nodeR.parent = nodeP
+        nodeX.parent = nodeR
+        nodeR.left = nodeX
+        nodeRL.parent = nodeX
+        nodeX.right = nodeRL
+
+        if nodeP is None:
+            self.root = nodeR  # Case: X was the root
+        elif nodeP.left is nodeX:
+            nodeP.left = nodeR  # Case: X was a left child
+        else:
+            nodeP.right = nodeR  # Case: X was a right child
+
+        nodeX.height = 1 + max(nodeX.left.height, nodeX.right.height)
+        nodeR.height = 1 + max(nodeR.left.height, nodeR.right.height)
+
+
     def rebalance(self, nodeX):
 
         # The first case L-L (Right Rotation) BF(nodeX) = 2,  BF(nodeX.left) >=0
@@ -151,33 +173,17 @@ class AVLTree(object):
 
         # The second case R-R (Left Rotation) BF(nodeX) = -2 BF(nodex.right) <=0
         elif self.BF(nodeX) == -2 and self.BF(nodeX.right) <= 0:
-            nodeR = nodeX.right
-            nodeP = nodeX.parent
-            nodeRL = nodeR.left
-
-
-            nodeR.parent = nodeP
-            nodeX.parent = nodeR
-            nodeR.left = nodeX
-            nodeRL.parent = nodeX
-            nodeX.right = nodeRL;
-
-            if nodeP is None:
-                self.root = nodeR  # Case: X was the root
-            elif nodeP.left is nodeX:
-                nodeP.left = nodeR  # Case: X was a left child
-            else:
-                nodeP.right = nodeR  # Case: X was a right child
-
-            nodeX.height = 1 + max(nodeX.left.height, nodeX.right.height)
-            nodeR.height = 1 + max(nodeR.left.height, nodeR.right.height)
+            self.left_rotation(nodeX)
 
         # The third case L-R (Left Rotation on the left child, then Right Rotation on the node) BF(nodeX) = 2, BF(nodex.left) = -1
         elif self.BF(nodeX) == 2 and self.BF(nodeX.left) == -1:
-
+            self.left_rotation(nodeX.left)
+            self.right_rotation(nodeX)
 
         # The fourth case R-L (Right Rotation on the right child, then Left Rotation on the node) BF(nodeX) = -2 BF(node.right) = 1
         elif self.BF(nodeX) == -2 and self.BF(nodeX.right) == 1:
+            self.right_rotation(nodeX.right)
+            self.left_rotation(nodeX)
 
 
 
