@@ -37,6 +37,11 @@ class AVLNode(object):
             return False
         return True
 
+    def update_height(self):
+        left_height = self.left.height if self.left and self.left.is_real_node() else -1
+        right_height = self.right.height if self.right and self.right.is_real_node() else -1
+        self.height = 1 + max(left_height, right_height)
+
 
 """
 A class implementing an AVL tree.
@@ -308,11 +313,25 @@ class AVLTree(object):
         # Helper Function
         return self.execute_insert(curr, key, val, path_len)
 
-    """deletes node from the dictionary
+    def find_predecessor(self, node):
+        if node is None or not node.is_real_node():
+            return None
 
-    @type node: AVLNode
-    @pre: node is a real pointer to a node in self
-    """
+        # if there is a left sub tree
+        if node.left.is_real_node():
+            curr = node.left
+            while curr.right.is_real_node():
+                curr = curr.right
+            return curr
+
+        # if there is no left subtree we go up
+        curr = node
+        while curr.parent is not None:
+            if curr is curr.parent.right:
+                return curr.parent
+            curr = curr.parent
+
+        return None
 
     def find_successor(self, node):
         if node is None:
@@ -337,10 +356,37 @@ class AVLTree(object):
 
         return None
 
+    """deletes node from the dictionary
+
+       @type node: AVLNode
+       @pre: node is a real pointer to a node in self
+       """
+
     def delete(self, node):
+
+        def fix_tree_after_deletion(curr):
+            while curr is not None and curr.is_real_node():
+
+                old_height = curr.height
+
+                curr.update_height()
+
+                bf = self.BF(curr)
+
+                # doing the algorithm for fixing a tree
+                if abs(bf) < 2 and old_height == curr.height:
+                    return
+                elif abs(bf) < 2 and old_height != curr.height:
+                    curr = curr.parent
+                else:
+                    old_parent = curr.parent
+                    self.rebalance(curr)
+                    curr = old_parent
 
         # TODO think about height and how to implement it here
 
+        if node == self.max_node_field:
+            self.max_node_field = self.find_predecessor(node)
         if node is None or not node.is_real_node():
             return
 
@@ -353,15 +399,15 @@ class AVLTree(object):
             emptyNode.parent = p
 
             if p is None:
-                self.root = emptyNode
+                self.root = None
             elif p.left is node:
                 p.left = emptyNode
             else:
                 p.right = emptyNode
 
-            # balancing
+            curr = p
 
-            return
+            fix_tree_after_deletion(curr)
 
         # the second case only the left child exist
 
@@ -377,7 +423,8 @@ class AVLTree(object):
             else:
                 p.right = child
 
-            # balancing
+            curr = p
+            fix_tree_after_deletion(curr)
             return
 
         # the third case only the right child exist
@@ -393,12 +440,79 @@ class AVLTree(object):
             else:
                 p.right = child
 
-            # balancing
+            curr = p
+            fix_tree_after_deletion(curr)
             return
 
         # both children
         else:
             # successor
+            successor_X = self.find_successor(node)
+
+            successor_X_Original_Parent = successor_X.parent
+            successor_X_Original_Child = successor_X.right
+
+            # Successor is the immediate child of the node
+            if successor_X == node.right:
+                # Link successor to the parent of the deleted node
+                successor_X.parent = node.parent
+                if node.parent is None:
+                    self.root = successor_X
+                elif node.parent.left is node:
+                    node.parent.left = successor_X
+                else:
+                    node.parent.right = successor_X
+
+                # Link the left subtree of node to successor
+                successor_X.left = node.left
+                if successor_X.left and successor_X.left.is_real_node():
+                    successor_X.left.parent = successor_X
+                successor_X.height = node.height
+                correction_start_node = successor_X
+
+            # Successor is deeper in the tree
+            else:
+                # Cut successor out from its current location
+                # Its parent takes its right child
+                if successor_X_Original_Child:
+                    successor_X_Original_Child.parent = successor_X_Original_Parent
+
+                if successor_X_Original_Parent.left is successor_X:
+                    successor_X_Original_Parent.left = successor_X_Original_Child
+                else:
+                    successor_X_Original_Parent.right = successor_X_Original_Child
+
+                # Place successor in the spot of node
+
+                # Link to node's parent
+                successor_X.parent = node.parent
+                if node.parent is None:
+                    self.root = successor_X
+                elif node.parent.left is node:
+                    node.parent.left = successor_X
+                else:
+                    node.parent.right = successor_X
+
+                # Take node's left subtree
+                successor_X.left = node.left
+                if successor_X.left and successor_X.left.is_real_node():
+                    successor_X.left.parent = successor_X
+
+                # Take node's right subtree
+                successor_X.right = node.right
+                if successor_X.right and successor_X.right.is_real_node():
+                    successor_X.right.parent = successor_X
+
+                # Rebalancing start point: the old parent of successor
+                correction_start_node = successor_X_Original_Parent
+
+            # for my bro GC
+            node.parent = node.left = node.right = None
+
+            successor_X.height = node.height
+
+            # Rebalancing
+            fix_tree_after_deletion(correction_start_node)
             return
 
     """joins self with item and another AVLTree
@@ -414,7 +528,116 @@ class AVLTree(object):
     """
 
     def join(self, tree2, key, val):
+
+        if tree2.root is None:
+            self.insert(key, val)
+            return
+        if self.root is None:
+            self.root = tree2.root
+            self.max_node_field = tree2.max_node_field
+            self.insert(key, val)
+            return
+
+        if self.root.key < key:
+            T1, T2 = self, tree2
+        else:
+            T1, T2 = tree2, self
+
+        new_node = AVLNode(key, val)
+        new_node.height = 0
+
+        root1 = T1.root
+        root2 = T2.root
+        h1 = root1.height
+        h2 = root2.height
+
+        if abs(h1 - h2) <= 1:
+            new_node.left = root1
+            root1.parent = new_node
+            new_node.right = root2
+            root2.parent = new_node
+
+            # Update the main tree root
+            self.root = new_node
+            new_node.update_height()
+
+            # Max node is the max node of the right tree
+            self.max_node_field = T2.max_node_field
+            return
+
+        elif h1 > h2:
+            # Go down the RIGHT spine of T1 until height <= h2 + 1
+            b = root1
+            while b.height > h2 + 1:
+                b = b.right
+
+            parent_b = b.parent
+
+            # Insert x: x.left takes b, x.right takes the whole T2
+            new_node.left = b
+            b.parent = new_node
+
+            new_node.right = root2
+            root2.parent = new_node
+
+            new_node.parent = parent_b
+
+            # 2. Re-attach x to the main tree
+            if parent_b is None:
+                T1.root = new_node
+            else:
+                parent_b.right = new_node  # We went down the right spine
+
+            # Balance upwards
+            self.fix_up_join(new_node)
+            self.root = T1.root
+
+            # Right Tree (T2) is Taller (h2 > h1)
+        else:  # h2 > h1
+            # Go down the LEFT spine of T2 until height <= h1 + 1
+            b = root2
+            while b.height > h1 + 1:
+                b = b.left
+
+            parent_b = b.parent
+
+            # Insert x: x.right takes b, x.left takes the whole T1
+            new_node.right = b
+            b.parent = new_node
+
+            new_node.left = root1
+            root1.parent = new_node
+
+            new_node.parent = parent_b
+
+            # Re-attach x to the main tree
+            if parent_b is None:
+                T2.root = new_node
+            else:
+                parent_b.left = new_node  # We went down the left spine
+
+            # Balance upwards
+            self.fix_up_join(new_node)
+            self.root = T2.root
+
+        # Final update of max_node
+        self.max_node_field = T2.max_node_field
         return
+
+    # Helper function (MUST be defined within the AVLTree class scope)
+    def fix_up_join(self, node):
+        curr = node
+        while curr is not None:
+            old_height = curr.height
+            curr.update_height()
+            bf = abs(self.BF(curr))
+            if bf < 2 and curr.height == old_height:
+                return
+            elif bf < 2 and curr.height != old_height:
+                curr = curr.parent
+            else:
+                self.rebalance(curr)
+                curr = curr.parent
 
     """splits the dictionary at a given node
 
@@ -464,4 +687,4 @@ class AVLTree(object):
     """
 
     def get_root(self):
-        return None
+        return self.root
