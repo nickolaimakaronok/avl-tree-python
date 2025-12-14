@@ -663,6 +663,15 @@ class AVLTree(object):
     dictionary larger than node.key.
     """
 
+    def recompute_max(self):
+        if self.root is None or (not self.root.is_real_node()):
+            self.max_node_field = None
+            return
+        curr = self.root
+        while curr.right is not None and curr.right.is_real_node():
+            curr = curr.right
+        self.max_node_field = curr
+
     def split(self, node):
 
         # Initialize the two result trees
@@ -700,6 +709,9 @@ class AVLTree(object):
 
             node = parent
             parent = grand_parent
+
+        t1.recompute_max()
+        t2.recompute_max()
 
         return (t1, t2)
 
