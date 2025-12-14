@@ -56,7 +56,7 @@ class AVLTree(object):
     def __init__(self):
         self.root = None
         self.max_node_field = None
-        self.size = 0
+        self.tree_size = 0
 
     """searches for a node in the dictionary corresponding to the key (starting at the root)
 
@@ -208,6 +208,8 @@ class AVLTree(object):
         curr.left.parent = curr
         curr.right.parent = curr
 
+        self.tree_size += 1
+
         # Updating Max Node
         # Check if we need to update the max pointer
         if self.max_node_field is None or key > self.max_node_field.key:
@@ -237,7 +239,6 @@ class AVLTree(object):
                 self.rebalance(parent)
                 return curr, path_len, promotes
 
-        self.size += 1
         return curr, path_len, promotes
 
     """inserts a new node into the dictionary with corresponding key and value (starting at the root)
@@ -263,8 +264,8 @@ class AVLTree(object):
             self.root.left.parent = self.root
             self.root.right.parent = self.root
             self.max_node_field = self.root
-            self.size = 1
-            return self.root, 0, 0
+            self.tree_size = 1
+            return self.root, 1, 0
 
         curr = self.root
         path_len = 0
@@ -391,7 +392,7 @@ class AVLTree(object):
         if node is None or not node.is_real_node():
             return
 
-        self.size -= 1
+        self.tree_size -= 1
         p = node.parent
 
         # the first case the node is a leaf
@@ -532,14 +533,18 @@ class AVLTree(object):
     or the opposite way
     """
 
+    def is_empty(self):
+        return self.root is None or (not self.root.is_real_node())
+
     def join(self, tree2, key, val):
 
-        if tree2.root is None:
+        if tree2 is None or tree2.is_empty():
             self.insert(key, val)  # size += 1
             return
+
         if self.root is None:
             self.root = tree2.root
-            self.size = tree2.size
+            self.tree_size = tree2.tree_size
             self.max_node_field = tree2.max_node_field
             self.insert(key, val)
             return
@@ -569,7 +574,7 @@ class AVLTree(object):
 
             # Max node is the max node of the right tree and updating size
             self.max_node_field = T2.max_node_field
-            self.size = T1.size + T2.size + 1
+            self.tree_size = T1.tree_size + T2.tree_size + 1
             return
 
         elif h1 > h2:
@@ -629,7 +634,7 @@ class AVLTree(object):
 
         # Final update of max_node and size
         self.max_node_field = T2.max_node_field
-        self.size = T1.size + T2.size + 1
+        self.tree_size = T1.tree_size + T2.tree_size + 1
         return
 
     # Helper function (MUST be defined within the AVLTree class scope)
@@ -662,12 +667,12 @@ class AVLTree(object):
 
         # Initialize the two result trees
         t1 = AVLTree()
-        t1.root = node.left
+        t1.root = node.left if (node.left is not None and node.left.is_real_node()) else None
         if t1.root is not None:
             t1.root.parent = None
 
         t2 = AVLTree()
-        t2.root = node.right
+        t2.root = node.right if (node.right is not None and node.right.is_real_node()) else None
         if t2.root is not None:
             t2.root.parent = None
 
@@ -731,7 +736,7 @@ class AVLTree(object):
     """
 
     def size(self):
-        return self.size
+        return self.tree_size
 
     """returns the root of the tree representing the dictionary
 
