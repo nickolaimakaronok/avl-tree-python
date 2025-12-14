@@ -70,7 +70,7 @@ class AVLTree(object):
     def search(self, key):
 
         if self.root is None:
-            return (None, 0)
+            return (None, 1)
 
         curr = self.root
 
@@ -86,7 +86,7 @@ class AVLTree(object):
             else:
                 curr = curr.right
 
-        return None, path_len
+        return None, path_len + 1
 
     """searches for a node in the dictionary corresponding to the key, starting at the max
 
@@ -100,7 +100,7 @@ class AVLTree(object):
     def finger_search(self, key):
 
         if self.root is None:
-            return (None, 0)
+            return (None, 1)
 
         curr = self.max_node()
         path_len = 0
@@ -119,7 +119,7 @@ class AVLTree(object):
             else:
                 curr = curr.right
 
-        return None, path_len
+        return None, path_len + 1
 
     def BF(self, nodeX):
         if nodeX is None:
@@ -279,7 +279,7 @@ class AVLTree(object):
                 return None, -1, -1  # Key already exists
 
         # Helper function
-        return self.execute_insert(curr, key, val, path_len)
+        return self.execute_insert(curr, key, val, path_len + 1)
 
     """inserts a new node into the dictionary with corresponding key and value, starting at the max
 
@@ -315,7 +315,7 @@ class AVLTree(object):
                 curr = curr.left
 
         # Helper Function
-        return self.execute_insert(curr, key, val, path_len)
+        return self.execute_insert(curr, key, val, path_len + 1)
 
     def find_predecessor(self, node):
         if node is None or not node.is_real_node():
