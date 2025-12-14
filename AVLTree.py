@@ -473,6 +473,7 @@ class AVLTree(object):
 
                 successor_X.height = node.height
                 correction_start_node = successor_X
+                # Hello
 
 
             # Successor is deeper in the tree
