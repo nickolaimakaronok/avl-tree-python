@@ -68,7 +68,7 @@ class AVLTree(object):
     """
 
     def search(self, key):
-        # TODO create a common function for finger and regular search
+
         if self.root is None:
             return (None, 0)
 
@@ -386,13 +386,12 @@ class AVLTree(object):
                     self.rebalance(curr)
                     curr = old_parent
 
-        # TODO think about height and how to implement it here
-
         if node == self.max_node_field:
             self.max_node_field = self.find_predecessor(node)
         if node is None or not node.is_real_node():
             return
 
+        self.size -= 1
         p = node.parent
 
         # the first case the node is a leaf
@@ -473,7 +472,7 @@ class AVLTree(object):
 
                 successor_X.height = node.height
                 correction_start_node = successor_X
-                # Hello
+
 
 
             # Successor is deeper in the tree
@@ -536,10 +535,11 @@ class AVLTree(object):
     def join(self, tree2, key, val):
 
         if tree2.root is None:
-            self.insert(key, val)
+            self.insert(key, val)  # size += 1
             return
         if self.root is None:
             self.root = tree2.root
+            self.size = tree2.size
             self.max_node_field = tree2.max_node_field
             self.insert(key, val)
             return
@@ -567,8 +567,9 @@ class AVLTree(object):
             self.root = new_node
             new_node.update_height()
 
-            # Max node is the max node of the right tree
+            # Max node is the max node of the right tree and updating size
             self.max_node_field = T2.max_node_field
+            self.size = T1.size + T2.size + 1
             return
 
         elif h1 > h2:
@@ -626,8 +627,9 @@ class AVLTree(object):
             self.fix_up_join(new_node)
             self.root = T2.root
 
-        # Final update of max_node
+        # Final update of max_node and size
         self.max_node_field = T2.max_node_field
+        self.size = T1.size + T2.size + 1
         return
 
     # Helper function (MUST be defined within the AVLTree class scope)
@@ -729,7 +731,7 @@ class AVLTree(object):
     """
 
     def size(self):
-        return -1
+        return self.size
 
     """returns the root of the tree representing the dictionary
 
