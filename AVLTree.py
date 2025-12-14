@@ -9,6 +9,14 @@
 """A class represnting a node in an AVL tree"""
 
 
+# ============================================================
+# Complexity notes (worst-case, O(*))
+# n = number of REAL nodes in the tree (self.tree_size).
+# In an AVL tree, the height h satisfies: h = O(log n).
+# So any walk up/down a single root --> leaf path is O(log n).
+# ============================================================
+
+
 class AVLNode(object):
     """Constructor, you are allowed to add more fields.
 
@@ -38,6 +46,7 @@ class AVLNode(object):
         return True
 
     def update_height(self):
+        # Worst-case time complexity: O(1)
         left_height = self.left.height if self.left and self.left.is_real_node() else -1
         right_height = self.right.height if self.right and self.right.is_real_node() else -1
         self.height = 1 + max(left_height, right_height)
@@ -69,6 +78,9 @@ class AVLTree(object):
 
     def search(self, key):
 
+        # Worst-case time complexity: O(log n)
+        # (walks down at most the AVL height)
+
         if self.root is None:
             return (None, 1)
 
@@ -99,6 +111,9 @@ class AVLTree(object):
 
     def finger_search(self, key):
 
+        # Worst-case time complexity: O(log n)
+        # (climb up from max at most O(log n), then descend O(log n))
+
         if self.root is None:
             return (None, 1)
 
@@ -127,6 +142,7 @@ class AVLTree(object):
         return nodeX.left.height - nodeX.right.height
 
     def right_rotation(self, nodeX):
+        # Worst-case time complexity: O(1)
         nodeL = nodeX.left
         nodeP = nodeX.parent
         nodeLR = nodeL.right
@@ -150,6 +166,8 @@ class AVLTree(object):
         nodeL.height = 1 + max(nodeL.left.height, nodeL.right.height)
 
     def left_rotation(self, nodeX):
+        # Worst-case time complexity: O(1)
+
         nodeR = nodeX.right
         nodeP = nodeX.parent
         nodeRL = nodeR.left
@@ -172,6 +190,9 @@ class AVLTree(object):
 
     def rebalance(self, nodeX):
 
+        # Worst-case time complexity: O(1)
+        # (at most a constant number of rotations)
+
         # The first case L-L (Right Rotation) BF(nodeX) = 2,  BF(nodeX.left) >=0
         if (self.BF(nodeX) == 2 and self.BF(nodeX.left) >= 0):
             self.right_rotation(nodeX)
@@ -193,6 +214,10 @@ class AVLTree(object):
         return None
 
     def execute_insert(self, curr, key, val, path_len):
+
+        # Worst-case time complexity: O(log n)
+        # (rebalance-loop goes up to the root: at most AVL height)
+
         """
         Helper: turns the virtual node 'curr' into a real node,
         updates the max pointer, and performs rebalancing.
@@ -255,6 +280,10 @@ class AVLTree(object):
     """
 
     def insert(self, key, val):
+
+        # Worst-case time complexity: O(log n)
+        # (search for insertion place O(log n) + fix-up O(log n))
+
         # Handle empty tree case
         if self.root is None:
             self.root = AVLNode(key, val)
@@ -295,6 +324,10 @@ class AVLTree(object):
     """
 
     def finger_insert(self, key, val):
+
+        # Worst-case time complexity: O(log n)
+        # (climb up from max O(log n) + descend O(log n) + fix-up O(log n))
+
         if self.max_node_field is None:
             return self.insert(key, val)
 
@@ -318,6 +351,10 @@ class AVLTree(object):
         return self.execute_insert(curr, key, val, path_len + 1)
 
     def find_predecessor(self, node):
+
+        # Worst-case time complexity: O(log n)
+        # (either go down a subtree spine or climb up ancestors)
+
         if node is None or not node.is_real_node():
             return None
 
@@ -338,6 +375,10 @@ class AVLTree(object):
         return None
 
     def find_successor(self, node):
+
+        # Worst-case time complexity: O(log n)
+        # (either go down a subtree spine or climb up ancestors)
+
         if node is None:
             return None
 
@@ -368,7 +409,14 @@ class AVLTree(object):
 
     def delete(self, node):
 
+        # Worst-case time complexity: O(log n)
+        # (find successor/predecessor O(log n) + fix-up/rebalance up the tree O(log n))
+
         def fix_tree_after_deletion(curr):
+
+            # Worst-case time complexity: O(log n)
+            # (moves upward toward the root with O(1) work per level)
+
             while curr is not None and curr.is_real_node():
 
                 old_height = curr.height
@@ -538,6 +586,10 @@ class AVLTree(object):
 
     def join(self, tree2, key, val):
 
+        # Worst-case time complexity: O(log n)
+        # where n = (size of self) + (size of tree2) + 1
+        # (walk down one spine by height-difference, then fix-up to root)
+
         if tree2 is None or tree2.is_empty():
             self.insert(key, val)  # size += 1
             return
@@ -639,6 +691,10 @@ class AVLTree(object):
 
     # Helper function (MUST be defined within the AVLTree class scope)
     def fix_up_join(self, node):
+
+        # Worst-case time complexity: O(log n)
+        # (moves upward toward the root; at most AVL height)
+
         curr = node
         while curr is not None:
             old_height = curr.height
@@ -664,6 +720,10 @@ class AVLTree(object):
     """
 
     def recompute_max(self):
+
+        # Worst-case time complexity: O(log n)
+        # (walks down the right spine to the maximal key)
+
         if self.root is None or (not self.root.is_real_node()):
             self.max_node_field = None
             return
@@ -673,6 +733,9 @@ class AVLTree(object):
         self.max_node_field = curr
 
     def split(self, node):
+
+        # Worst-case time complexity: O(log n)
+        # (climbs from node to root: O(log n), using AVL-join to assemble two trees)
 
         # Initialize the two result trees
         t1 = AVLTree()
@@ -722,12 +785,18 @@ class AVLTree(object):
     """
 
     def in_order_to_array(self, arr, node):
+
+        # Worst-case time complexity: O(n)
+        # (visits each real node exactly once; recursion depth is O(log n))
+
         if node is not None and node.is_real_node():
             self.in_order_to_array(arr, node.left)
             arr.append((node.key, node.value))
             self.in_order_to_array(arr, node.right)
 
     def avl_to_array(self):
+        # Worst-case time complexity: O(n)
+        # (in-order traversal over all nodes)
         arr = []
         self.in_order_to_array(arr, self.root)
         return arr
@@ -739,6 +808,7 @@ class AVLTree(object):
     """
 
     def max_node(self):
+        # Worst-case time complexity: O(1)
         return self.max_node_field
 
     """returns the number of items in dictionary 
@@ -748,6 +818,7 @@ class AVLTree(object):
     """
 
     def size(self):
+        # Worst-case time complexity: O(1)
         return self.tree_size
 
     """returns the root of the tree representing the dictionary
@@ -757,4 +828,5 @@ class AVLTree(object):
     """
 
     def get_root(self):
+        # Worst-case time complexity: O(1)
         return self.root
