@@ -56,6 +56,7 @@ class AVLTree(object):
     def __init__(self):
         self.root = None
         self.max_node_field = None
+        self.size = 0
 
     """searches for a node in the dictionary corresponding to the key (starting at the root)
 
@@ -236,6 +237,7 @@ class AVLTree(object):
                 self.rebalance(parent)
                 return curr, path_len, promotes
 
+        self.size += 1
         return curr, path_len, promotes
 
     """inserts a new node into the dictionary with corresponding key and value (starting at the root)
@@ -261,6 +263,7 @@ class AVLTree(object):
             self.root.left.parent = self.root
             self.root.right.parent = self.root
             self.max_node_field = self.root
+            self.size = 1
             return self.root, 0, 0
 
         curr = self.root
@@ -467,8 +470,10 @@ class AVLTree(object):
                 successor_X.left = node.left
                 if successor_X.left and successor_X.left.is_real_node():
                     successor_X.left.parent = successor_X
+
                 successor_X.height = node.height
                 correction_start_node = successor_X
+
 
             # Successor is deeper in the tree
             else:
@@ -651,7 +656,44 @@ class AVLTree(object):
     """
 
     def split(self, node):
-        return None, None
+
+        # Initialize the two result trees
+        t1 = AVLTree()
+        t1.root = node.left
+        if t1.root is not None:
+            t1.root.parent = None
+
+        t2 = AVLTree()
+        t2.root = node.right
+        if t2.root is not None:
+            t2.root.parent = None
+
+        # Start climbing from the immediate parent
+        parent = node.parent
+
+        while parent is not None:
+            grand_parent = parent.parent
+            if parent.right is node:
+                left_tree = AVLTree()
+                left_tree.root = parent.left
+
+                if left_tree.root is not None:
+                    left_tree.root.parent = None
+
+                t1.join(left_tree, parent.key, parent.value)
+            elif parent.left is node:
+                right_tree = AVLTree()
+                right_tree.root = parent.right
+
+                if right_tree.root is not None:
+                    right_tree.root.parent = None
+
+                t2.join(right_tree, parent.key, parent.value)
+
+            node = parent
+            parent = grand_parent
+
+        return (t1, t2)
 
     """returns an array representing dictionary 
 
@@ -659,8 +701,16 @@ class AVLTree(object):
     @returns: a sorted list according to key of touples (key, value) representing the data structure
     """
 
+    def in_order_to_array(self, arr, node):
+        if node is not None and node.is_real_node():
+            self.in_order_to_array(arr, node.left)
+            arr.append((node.key, node.value))
+            self.in_order_to_array(arr, node.right)
+
     def avl_to_array(self):
-        return None
+        arr = []
+        self.in_order_to_array(arr, self.root)
+        return arr
 
     """returns the node with the maximal key in the dictionary
 
