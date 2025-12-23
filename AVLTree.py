@@ -116,6 +116,14 @@ class AVLTree(object):
         # Worst-case time complexity: O(log n)
         # (climb up from max at most O(log n), then descend O(log n))
 
+        # Complexity: O(log k) where k is the rank difference between max_node and key.
+        # Algorithm:
+        # 1. Climb up from max_node to the first ancestor whose subtree contains 'key'.
+        #    This ancestor covers the range [key, max_key] (size k), so height is O(log k), because it's AVL.
+        # 2. Then we do the Binary Search Tree descent from that ancestor to find 'key' it takes O(log k).
+        #
+        # Total: O(log k) climbing up + O(log k) going down = O(log k).
+
         if self.root is None:
             return (None, 1)
 
@@ -333,6 +341,15 @@ class AVLTree(object):
 
         # Worst-case time complexity: O(log n)
         # (climb up from max O(log n) + descend O(log n) + fix-up O(log n))
+
+        # Complexity: O(log k) where k is the rank distance from max_node to key.
+        # Algorithm:
+        # 1. Climb up from max_node until we cover the range [key, max_key].
+        #    After this we stop at the common ancestor
+        #    Since the subtree covers k nodes, its height is O(log k), because it's AVL
+        # 2. Descending from that common ancestor to the insertion place will also take O(log k).
+        #
+        # Total: O(log k) climbing up + O(log k) going down = O(log k).
 
         if self.max_node_field is None:
             return self.insert(key, val)
