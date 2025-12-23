@@ -41,12 +41,14 @@ class AVLNode(object):
     """
 
     def is_real_node(self):
+        # Worst-case time complexity: O(1)
         if (self.key is None):
             return False
         return True
 
     def update_height(self):
         # Worst-case time complexity: O(1)
+        # Updates the height of the current node
         left_height = self.left.height if self.left and self.left.is_real_node() else -1
         right_height = self.right.height if self.right and self.right.is_real_node() else -1
         self.height = 1 + max(left_height, right_height)
@@ -137,12 +139,16 @@ class AVLTree(object):
         return None, path_len + 1
 
     def BF(self, nodeX):
+        # Worst complexity O(1)
+        # It returns the BF(Balance factor) of the given node(nodeX)
+
         if nodeX is None:
             return 0
         return nodeX.left.height - nodeX.right.height
 
     def right_rotation(self, nodeX):
         # Worst-case time complexity: O(1)
+
         nodeL = nodeX.left
         nodeP = nodeX.parent
         nodeLR = nodeL.right
@@ -582,6 +588,7 @@ class AVLTree(object):
     """
 
     def is_empty(self):
+        # Worst-case O(1)
         return self.root is None or (not self.root.is_real_node())
 
     def join(self, tree2, key, val):
