@@ -6,15 +6,14 @@
 # username2: talsamson
 
 
-"""A class represnting a node in an AVL tree"""
-
-
 # ============================================================
 # Complexity notes (worst-case, O(*))
 # n = number of REAL nodes in the tree (self.tree_size).
 # In an AVL tree, the height h satisfies: h = O(log n).
 # So any walk up/down a single root --> leaf path is O(log n).
 # ============================================================
+
+"""A class represnting a node in an AVL tree"""
 
 
 class AVLNode(object):
@@ -592,6 +591,10 @@ class AVLTree(object):
             fix_tree_after_deletion(correction_start_node)
             return
 
+    def is_empty(self):
+        # Worst-case O(1)
+        return self.root is None or (not self.root.is_real_node())
+
     """joins self with item and another AVLTree
 
     @type tree2: AVLTree 
@@ -603,10 +606,6 @@ class AVLTree(object):
     @pre: all keys in self are smaller than key and all keys in tree2 are larger than key,
     or the opposite way
     """
-
-    def is_empty(self):
-        # Worst-case O(1)
-        return self.root is None or (not self.root.is_real_node())
 
     def join(self, tree2, key, val):
 
@@ -732,17 +731,6 @@ class AVLTree(object):
                 self.rebalance(curr)
                 curr = curr.parent
 
-    """splits the dictionary at a given node
-
-    @type node: AVLNode
-    @pre: node is in self
-    @param node: the node in the dictionary to be used for the split
-    @rtype: (AVLTree, AVLTree)
-    @returns: a tuple (left, right), where left is an AVLTree representing the keys in the 
-    dictionary smaller than node.key, and right is an AVLTree representing the keys in the 
-    dictionary larger than node.key.
-    """
-
     def recompute_max(self):
 
         # Worst-case time complexity: O(log n)
@@ -755,6 +743,17 @@ class AVLTree(object):
         while curr.right is not None and curr.right.is_real_node():
             curr = curr.right
         self.max_node_field = curr
+
+    """splits the dictionary at a given node
+
+    @type node: AVLNode
+    @pre: node is in self
+    @param node: the node in the dictionary to be used for the split
+    @rtype: (AVLTree, AVLTree)
+    @returns: a tuple (left, right), where left is an AVLTree representing the keys in the 
+    dictionary smaller than node.key, and right is an AVLTree representing the keys in the 
+    dictionary larger than node.key.
+    """
 
     def split(self, node):
 
@@ -808,6 +807,13 @@ class AVLTree(object):
     @returns: a sorted list according to key of touples (key, value) representing the data structure
     """
 
+    def avl_to_array(self):
+        # Worst-case time complexity: O(n)
+        # (in-order traversal over all nodes)
+        arr = []
+        self.in_order_to_array(arr, self.root)
+        return arr
+
     def in_order_to_array(self, arr, node):
 
         # Worst-case time complexity: O(n)
@@ -817,13 +823,6 @@ class AVLTree(object):
             self.in_order_to_array(arr, node.left)
             arr.append((node.key, node.value))
             self.in_order_to_array(arr, node.right)
-
-    def avl_to_array(self):
-        # Worst-case time complexity: O(n)
-        # (in-order traversal over all nodes)
-        arr = []
-        self.in_order_to_array(arr, self.root)
-        return arr
 
     """returns the node with the maximal key in the dictionary
 
