@@ -1,12 +1,12 @@
-"""Mega AVL Tester for TAU Data Structures Project 1 (AVL Tree).
+"""Extended AVL Tree stress tester — edge cases and invariant checks.
 
 How to use (recommended):
   1) Put this file next to your implementation file (usually: AVLTree.py)
   2) Run:
-        python mega_avl_tester.py
+        python avl_tester_v2.py
 
 If your implementation file has a different name/path:
-        python mega_avl_tester.py --path /path/to/your_file.py
+        python avl_tester_v2.py --path /path/to/your_file.py
 
 This tester checks:
   - Required API exists
@@ -19,8 +19,6 @@ This tester checks:
   - join correctness
   - split correctness
   - Random stress tests
-
-NOTE: This is for *your* debugging only. Do not submit this tester.
 """
 
 from __future__ import annotations

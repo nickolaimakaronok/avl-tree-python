@@ -187,7 +187,6 @@ def main():
         ))
 
     # --- TABLE 2: Inversions (1 to 5 ONLY) ---
-    # As per the assignment image text "sufficient up to i=5"
     print("\n\n" + "=" * 90)
     print("Table 2: Number of Inversions (i=1..5)")
     print("=" * 90)
