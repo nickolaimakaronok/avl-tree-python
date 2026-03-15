@@ -228,7 +228,7 @@ def expected_search_e_from(start: Any, key: int) -> int:
 
 
 def expected_finger_search_e(tree: Any, key: int) -> int:
-    """Expected e for finger_search as described in the assignment."""
+    """Expected edges for finger_search."""
     root = tree.get_root()
     if root is None or not is_real(root):
         return 1
@@ -495,7 +495,7 @@ class MegaAVLTests(unittest.TestCase):
         t = self.mk()
         model: Dict[int, str] = {}
 
-        # Example from assignment: insert 3, 1, 2 promotes: 0,1,1
+        # Example: insert 3, 1, 2 → promotes: 0, 1, 1
         for k, expected_promotes in [(3, 0), (1, 1), (2, 1)]:
             e_expected = expected_search_e_from(t.get_root(), k)
             root_shadow = shadow_copy_from_student(t.get_root())
@@ -643,7 +643,7 @@ class MegaAVLTests(unittest.TestCase):
         left_expected = {k: v for k, v in model.items() if k < 40}
         right_expected = {k: v for k, v in model.items() if k > 40}
 
-        # Size after split is allowed to be wrong by assignment; don't check size.
+        # Size after split is not checked here.
         assert_avl_invariants(left, expected_items=left_expected, check_size=False)
         assert_avl_invariants(right, expected_items=right_expected, check_size=False)
 
