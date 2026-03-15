@@ -1,10 +1,3 @@
-# id1: 345682645
-# name1: Nickolai Makaronok
-# username1: mikalaim
-# id2: 213122625
-# name2: Tal Samson
-# username2: talsamson
-
 
 # ============================================================
 # Complexity notes (worst-case, O(*))
@@ -67,7 +60,6 @@ class AVLTree(object):
         self.root = None
         self.max_node_field = None
         self.tree_size = 0
-
     """searches for a node in the dictionary corresponding to the key (starting at the root)
 
     @type key: int
@@ -582,7 +574,6 @@ class AVLTree(object):
                 # Rebalancing start point: the old parent of successor
                 correction_start_node = successor_X_Original_Parent
 
-            # for my bro GC
             node.parent = node.left = node.right = None
 
             successor_X.height = node.height
