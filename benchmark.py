@@ -114,11 +114,6 @@ def main():
 
         # --- 3. Random (Avg of 20) ---
         s_rand_sum, b_rand_sum, inv_rand_sum = 0, 0, 0
-        # Reduce runs for very large N to save time?
-        # The prompt implies standard experiment, so we keep 20 runs.
-        # However, for i=10, 20 runs might take very long.
-        # Proceeding with 20 runs as per requirements.
-
         runs = 20
         for _ in range(runs):
             arr_rand = list(range(1, n + 1))
@@ -177,7 +172,7 @@ def main():
 
     # --- TABLE 1: Balancing Costs (1 to 10) ---
     print("\n" + "=" * 90)
-    print("Table 1: Total Balancing Costs (Promotions) / עלות איזון (i=1..10)")
+    print("Table 1: Total Balancing Cost — Promotions (i=1..10)")
     print("=" * 90)
     print(header)
     print("-" * 90)
@@ -194,7 +189,7 @@ def main():
     # --- TABLE 2: Inversions (1 to 5 ONLY) ---
     # As per the assignment image text "sufficient up to i=5"
     print("\n\n" + "=" * 90)
-    print("Table 2: Number of Inversions / מספר היפוכים (i=1..5)")
+    print("Table 2: Number of Inversions (i=1..5)")
     print("=" * 90)
     print(header)
     print("-" * 90)
@@ -210,7 +205,7 @@ def main():
 
     # --- TABLE 3: Search Costs (1 to 10) ---
     print("\n\n" + "=" * 90)
-    print("Table 3: Total Search Costs (Edges) / עלות חיפוש (i=1..10)")
+    print("Table 3: Total Search Cost — Edges Traversed (i=1..10)")
     print("=" * 90)
     print(header)
     print("-" * 90)
